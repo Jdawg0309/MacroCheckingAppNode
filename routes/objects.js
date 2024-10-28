@@ -27,17 +27,24 @@ function writeDataToFile(data) {
 
 // POST route to receive and store user data
 router.post('/', (req, res) => {
-    const newObject = req.body; // Capture the incoming data
-    const existingData = readDataFromFile(); // Read existing data from the file
+    const { date, meal, 'food-item': foodItem, servings, calories, protein, carbs, fats } = req.body;
 
-    existingData.push(newObject); // Add the new object to the existing data
-    writeDataToFile(existingData); // Save the updated data back to the file
+    if (!date || !meal || !foodItem) {
+        return res.status(400).send('Invalid data: Date, meal, and food-item are required.');
+    }
 
-    res.status(201).send("Data saved successfully!");
+    const newEntry = { date, meal, 'food-item': foodItem, servings, calories, protein, carbs, fats };
+    const existingData = readDataFromFile();
+    existingData.push(newEntry);
+    writeDataToFile(existingData);
+
+    res.status(201).json(newEntry);
+
+
 });
 
 // GET route to read and display all objects from the JSON file
-router.get('/', (req, res) => {
+router.get('/objects', (req, res) => {
     const data = readDataFromFile(); // Read data from the JSON file
     res.json(data); // Send the data back as a JSON response
 });

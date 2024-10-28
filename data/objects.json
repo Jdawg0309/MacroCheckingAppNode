@@ -3,7 +3,7 @@
     "date": "2024-10-28",
     "meal": "breakfast",
     "food-item": "Oats",
-    "servings": "11",
+    "servings": "1",
     "calories": "1",
     "protein": "1",
     "carbs": "1",
@@ -12,8 +12,8 @@
   {
     "date": "2024-10-28",
     "meal": "breakfast",
-    "food-item": "Oats",
-    "servings": "11",
+    "food-item": "1",
+    "servings": "1",
     "calories": "1",
     "protein": "1",
     "carbs": "1",
@@ -22,11 +22,11 @@
   {
     "date": "2024-10-28",
     "meal": "breakfast",
-    "food-item": "Oats",
-    "servings": "11",
+    "food-item": "1",
+    "servings": "1",
     "calories": "1",
     "protein": "1",
-    "carbs": "10",
+    "carbs": "1",
     "fats": "1"
   }
 ]
