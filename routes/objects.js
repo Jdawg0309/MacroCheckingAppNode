@@ -40,11 +40,30 @@ router.post('/', (req, res) => {
 
     res.status(201).json(newEntry);
 
-
 });
 
+router.delete('/', (req, res) => {
+    const { date, foodItem } = req.body;
+
+    if (!date || !foodItem) {
+        return res.status(400).send('Invalid data: Date and food-item are required.');
+    }
+
+    const existingData = readDataFromFile();
+
+    // Filter out the entry to delete
+    const updatedData = existingData.filter(entry => !(entry.date === date && entry['food-item'] === foodItem));
+
+    // Write updated data back to the file
+    writeDataToFile(updatedData);
+
+    // Send response indicating success
+    res.status(204).send(); // No content to send back
+});
+
+
 // GET route to read and display all objects from the JSON file
-router.get('/objects', (req, res) => {
+router.get('/', (req, res) => {
     const data = readDataFromFile(); // Read data from the JSON file
     res.json(data); // Send the data back as a JSON response
 });
