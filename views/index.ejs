@@ -195,76 +195,101 @@ table {
         </table>
     </div>  
     <script>
-        function addEntryToDOM(entry) {
-            const tableBody = document.getElementById('meal-log');
-            const row = document.createElement('tr');
+        // Function to add a new entry to the DOM
+    function addEntryToDOM(entry) {
+        const tableBody = document.getElementById('meal-log');
+        const row = document.createElement('tr');
 
-            row.innerHTML = `
-                <td>${entry.date}</td>
-                <td>${entry.meal}</td>
-                <td>${entry['food-item']}</td>
-                <td>${entry.servings}</td>
-                <td>${entry.calories}</td>
-                <td>${entry.protein}</td>
-                <td>${entry.carbs}</td>
-                <td>${entry.fats}</td>
-                <td><button class="delete-btn">Delete</button></td>
-            `;
+        row.innerHTML = `
+            <td>${entry.date}</td>
+            <td>${entry.meal}</td>
+            <td>${entry['food-item']}</td>
+            <td>${entry.servings}</td>
+            <td>${entry.calories}</td>
+            <td>${entry.protein}</td>
+            <td>${entry.carbs}</td>
+            <td>${entry.fats}</td>
+            <td><button class="delete-btn">Delete</button></td>
+        `;
 
-            tableBody.appendChild(row);
+        // Append the new row to the table body
+        tableBody.appendChild(row);
 
-            row.querySelector('.delete-btn').addEventListener('click', () => {
-                row.remove();
-                console.log(`Deleted entry for ${entry['food-item']} on ${entry.date}`);
-            });
-        }
-
-        function fetchEntries() {
-            fetch('/objects')
-                .then((response) => response.json())
-                .then((data) => {
-                    data.forEach(addEntryToDOM);
-                })
-                .catch((error) => {
-                    console.error('Error fetching entries:', error);
-                });
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-    const form = document.getElementById('meal-form');
-
-    if (!form) {
-        console.error('Form element not found!');
-        return;
+        // Attach delete button event listener
+        row.querySelector('.delete-btn').addEventListener('click', () => {
+            deleteEntry(entry.date, entry['food-item'], row);
+        });
     }
 
-    form.addEventListener('submit', async function (e) {
+    // Function to fetch entries and display them
+    function fetchEntries() {
+        fetch('/objects')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Clear existing rows to avoid duplicates
+                const tableBody = document.getElementById('meal-log');
+                tableBody.innerHTML = ''; // Clear the table body
+
+                // Loop through the fetched data and add each entry to the DOM
+                data.forEach(entry => {
+                    addEntryToDOM(entry);
+                });
+            })
+            .catch(error => console.error('Error fetching entries:', error));
+    }
+
+    // Function to delete an entry
+    function deleteEntry(date, foodItem, row) {
+        fetch('/objects', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ date, foodItem }),
+        })
+        .then(response => {
+            if (response.ok) {
+                row.remove();  // Remove the row from the DOM
+                console.log(`Deleted entry for ${foodItem} on ${date}`);
+            } else {
+                console.error('Failed to delete entry');
+            }
+        })
+        .catch(error => console.error('Error deleting entry:', error));
+    }
+
+    // Handle form submission to add a new entry
+    document.getElementById('tracking-form').addEventListener('submit', function (e) {
         e.preventDefault();
 
-        try {
-            const formData = new FormData(e.target);
-            const entry = Object.fromEntries(formData);
+        const formData = new FormData(e.target);
+        const entry = Object.fromEntries(formData);
 
-            const response = await fetch('/objects', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(entry),
-            });
-
+        fetch('/objects', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(entry),
+        })
+        .then(response => {
             if (!response.ok) {
-                throw new Error(`Server responded with status: ${response.status}`);
+                throw new Error('Network response was not ok');
             }
-
-            const newEntry = await response.json();
-            addEntryToDOM(newEntry);
-            e.target.reset();
-        } catch (error) {
-            console.error('Error adding entry:', error);
-        }
+            return response.json();
+        })
+        .then(newEntry => {
+            console.log('New Entry:', newEntry); // Debugging: Log the new entry
+            addEntryToDOM(newEntry); // Add new entry to the DOM
+            e.target.reset(); // Reset the form
+        })
+        .catch(error => console.error('Error adding entry:', error));
     });
-});
 
-        fetchEntries();
+    // Initial fetch to load entries
+    fetchEntries();
     </script>
+    
 </body>
 </html>
