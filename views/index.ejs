@@ -10,7 +10,6 @@
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
     margin: 0;
-    padding: 20px;
 }
 
 .navbar {
@@ -83,7 +82,7 @@ button:hover {
         </ul>
     </nav>
 
-    <form id="tracking-form">
+    <form id="tracking-form" action="/objects" method="POST">
         <label for="date">Date:</label>
         <input type="date" id="date" name="date" required>
 
@@ -115,6 +114,19 @@ button:hover {
 
         <button type="submit">Add Entry</button>
     </form>
-    
+    <script>
+        // Fetch and display the list of objects from the server
+        fetch('/objects')
+            .then(response => response.json())
+            .then(data => {
+                const list = document.getElementById('object-list');
+                data.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = `${item.name}: ${item.description}`;
+                    list.appendChild(li);
+                });
+            })
+            .catch(err => console.error('Error fetching objects:', err));
+    </script>
 </body>
 </html>
